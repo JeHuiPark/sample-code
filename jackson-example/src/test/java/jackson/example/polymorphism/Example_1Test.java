@@ -18,13 +18,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("InnerClassMayBeStatic")
-@DisplayName("Example_1")
+@DisplayName("json 다형성 예제 1")
 class Example_1Test {
 
   private static final ObjectMapper om = new ObjectMapper();
 
   @Nested
-  @DisplayName("json 다형성 테스트")
+  @DisplayName("직렬화/역직렬화")
   class Describe_serialize {
 
     @Nested
@@ -53,5 +53,55 @@ class Example_1Test {
       }
     }
 
+    @Nested
+    @DisplayName("collection")
+    class Context_in_collection {
+
+      List<User> given_list = Arrays.asList(
+          new Admin("admin"),
+          new Customer("customer"));
+
+      Map<Integer, User> given_map = Map.of(
+          1, new Admin("admin"),
+          2, new Customer("customer"));
+
+      @Test
+      @DisplayName("bad case")
+      void test2() throws IOException  {
+        String listJson = om.writeValueAsString(given_list);
+        String mapJson = om.writeValueAsString(given_map);
+
+        System.out.println("listJson = " + listJson);
+        System.out.println("mapJson = " + mapJson);
+
+        var typeReference = new TypeReference<User>() {};
+
+        assertThrows(
+            MismatchedInputException.class,
+            () -> om.readValue(listJson, typeReference)
+        );
+
+        assertThrows(
+            MismatchedInputException.class,
+            () -> om.readValue(mapJson, typeReference)
+        );
+      }
+
+      @Test
+      @DisplayName("good case")
+      void test3() throws IOException  {
+        var listReference = new TypeReference<List<User>>() {};
+        var mapReference = new TypeReference<Map<Integer, User>>() {};
+
+        String listJson = om.writerFor(listReference).writeValueAsString(given_list);
+        String mapJson = om.writerFor(mapReference).writeValueAsString(given_map);
+
+        System.out.println("listJson = " + listJson);
+        System.out.println("mapJson = " + mapJson);
+
+        assertEquals(given_list, om.readValue(listJson, listReference));
+        assertEquals(given_map, om.readValue(mapJson, mapReference));
+      }
+    }
   }
 }
