@@ -11,8 +11,14 @@ import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import jackson.example.polymorphism.Example_1.Admin;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import lombok.Data;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -102,6 +108,59 @@ class Example_1Test {
         assertEquals(given_list, om.readValue(listJson, listReference));
         assertEquals(given_map, om.readValue(mapJson, mapReference));
       }
+    }
+
+    @Nested
+    @DisplayName("dto")
+    class Context_dto {
+
+      SampleDto given;
+
+      @BeforeEach
+      void setup() {
+        given = new SampleDto();
+        given.groupId = "1";
+        given.addUser(new Admin("admin"));
+        given.addUser(new Customer("customer"));
+      }
+
+      @Test
+      @DisplayName("직렬화 -> 역직렬화")
+      void test4() throws IOException {
+        String json = om.writeValueAsString(given);
+
+        System.out.println("json = " + json);
+
+        SampleDto actual = om.readValue(json, SampleDto.class);
+
+        assertEquals(given, actual);
+      }
+    }
+  }
+
+  @Data
+  static class SampleDto {
+    String groupId;
+    Set<User> users;
+    Map<Integer, User> userMap;
+
+    static AtomicInteger counter = new AtomicInteger();
+
+    void addUser(User user) {
+      if (user == null) {
+        return;
+      }
+
+      if (users == null) {
+        users = new HashSet<>();
+      }
+
+      if (userMap == null) {
+        userMap = new HashMap<>();
+      }
+
+      users.add(user);
+      userMap.put(counter.incrementAndGet(), user);
     }
   }
 }
