@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    continue-on-error: true
+    hikari:
+      jdbc-url: jdbc:mariadb:aurora://dev-aurora-virtualinven.cluster-c9cx6a2jazb5.ap-northeast-2.rds.amazonaws.com:3306/stock
+      username: stock
+      password: stock02!!
+    driver-class-name: org.mariadb.jdbc.Driver
+#      jdbc-url: jdbc:h2:tcp://localhost:9092/oauth
+#      driver-class-name: org.h2.Driver
+#      username:
+#      password:
+
+logging:
+  level:
+    requery: warn
+  pattern:
+    console: '%black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable'
