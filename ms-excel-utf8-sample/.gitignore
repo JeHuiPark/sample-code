@@ -1,0 +1,5 @@
+.gradle
+build
+.idea
+ms-excel-no-bom-example.csv
+ms-excel-bom-example.csv
