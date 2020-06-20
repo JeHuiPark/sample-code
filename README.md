@@ -1,1 +1,1 @@
-# java-sample
+# blog-sample
