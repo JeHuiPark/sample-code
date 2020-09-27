@@ -1,0 +1,4 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    runtime "org.mariadb.jdbc:mariadb-java-client"
+}
