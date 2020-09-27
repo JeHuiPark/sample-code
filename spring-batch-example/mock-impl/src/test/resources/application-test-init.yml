@@ -1,0 +1,16 @@
+spring:
+  jpa:
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: none
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: test
+    password: test
+    url: jdbc:mysql://localhost:3305/test
+    initialization-mode: always
+    continue-on-error: true

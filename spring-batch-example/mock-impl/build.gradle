@@ -1,0 +1,9 @@
+dependencies {
+    implementation project (':mock-api')
+    runtime "org.mariadb.jdbc:mariadb-java-client"
+    compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    testRuntimeOnly 'com.h2database:h2'
+}
