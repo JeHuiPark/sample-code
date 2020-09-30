@@ -1,6 +1,7 @@
 package com.example.batch.config;
 
 import java.util.UUID;
+import java.util.concurrent.atomic.LongAdder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ChunkListener;
 import org.springframework.batch.core.Job;
@@ -11,8 +12,12 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStream;
+import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,8 +43,7 @@ public class BatchConfiguration {
 
   @Bean
   public Job job(ItemReaderImpl itemReader) {
-    return this.jobBuilderFactory.get("uuid-generate-job")
-        .start(step(null))
+    return jobBuilderFactory.get("uuid-generate-job")
         .listener(new JobExecutionListener() {
 
           @Override
@@ -51,18 +55,53 @@ public class BatchConfiguration {
           public void afterJob(JobExecution jobExecution) {
           }
         })
+        .start(step(null))
+        .next(customStep())
         .build();
   }
 
   @Bean
   public Step step(ItemReader<String> itemReader) {
-    return this.stepBuilderFactory
+    return stepBuilderFactory
         .get("uuid-generate-job-step")
         .<String, String>chunk(100)
         .reader(itemReader)
         .processor(new ItemTransformer())
         .writer(System.out::println)
         .listener(new ChunkListenerImpl())
+        .build();
+  }
+
+  @Bean
+  public Step customStep() {
+    LongAdder counter = new LongAdder();
+    return stepBuilderFactory
+        .get("step2")
+        .tasklet(
+            (contribution, chunkContext) -> {
+              counter.increment();
+              if (counter.sum() == 100) {
+                counter.reset();
+                return RepeatStatus.FINISHED;
+              }
+              return RepeatStatus.CONTINUABLE;
+            })
+        .stream(new ItemStream() {
+          @Override
+          public void open(ExecutionContext executionContext) throws ItemStreamException {
+            log.info("step2 stream open, counter = {}", counter.sum());
+          }
+
+          @Override
+          public void update(ExecutionContext executionContext) throws ItemStreamException {
+            log.info("step2 stream update, counter = {}", counter.sum());
+          }
+
+          @Override
+          public void close() throws ItemStreamException {
+            log.info("step2 stream close, counter = {}", counter.sum());
+          }
+        })
         .build();
   }
 
