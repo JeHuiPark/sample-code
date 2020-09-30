@@ -16,3 +16,6 @@ spring:
     schema:
       - org/springframework/batch/core/schema-mysql.sql
     continue-on-error: true
+  batch:
+    job:
+      enabled: false
