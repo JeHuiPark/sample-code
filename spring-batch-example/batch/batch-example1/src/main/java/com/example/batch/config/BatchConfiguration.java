@@ -11,6 +11,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -54,11 +55,12 @@ public class BatchConfiguration {
   }
 
   @Bean
-  public Step step(ItemReader<?> itemReader) {
+  public Step step(ItemReader<String> itemReader) {
     return this.stepBuilderFactory
         .get("uuid-generate-job-step")
-        .chunk(100)
+        .<String, String>chunk(100)
         .reader(itemReader)
+        .processor(new ItemTransformer())
         .writer(System.out::println)
         .listener(new ChunkListenerImpl())
         .build();
@@ -88,6 +90,14 @@ public class BatchConfiguration {
 
     synchronized void cleanup() {
       count = 0;
+    }
+  }
+
+  static class ItemTransformer implements ItemProcessor<String, String> {
+
+    @Override
+    public String process(String item) {
+      return item.substring(0, 8);
     }
   }
 
