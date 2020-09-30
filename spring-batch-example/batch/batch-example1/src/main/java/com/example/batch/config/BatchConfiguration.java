@@ -17,10 +17,13 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStream;
 import org.springframework.batch.item.ItemStreamException;
+import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 
 @Slf4j
 @Configuration
@@ -67,8 +70,9 @@ public class BatchConfiguration {
         .<String, String>chunk(100)
         .reader(itemReader)
         .processor(new ItemTransformer())
-        .writer(System.out::println)
+        .writer(itemWriter())
         .listener(new ChunkListenerImpl())
+        .taskExecutor(asyncTaskExecutor()) // 스텝 병렬화
         .build();
   }
 
@@ -108,6 +112,16 @@ public class BatchConfiguration {
   @Bean
   ItemReaderImpl itemReader() {
     return new ItemReaderImpl();
+  }
+
+  @Bean
+  ItemWriter<String> itemWriter() {
+    return e -> log.info("{}", e);
+  }
+
+  @Bean
+  public TaskExecutor asyncTaskExecutor(){
+    return new SimpleAsyncTaskExecutor("spring_batch");
   }
 
   static class ItemReaderImpl implements ItemReader<String> {
