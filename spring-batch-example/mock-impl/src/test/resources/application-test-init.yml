@@ -12,5 +12,5 @@ spring:
     username: test
     password: test
     url: jdbc:mysql://localhost:3305/test
-    initialization-mode: always
-    continue-on-error: true
+#    initialization-mode: always
+#    continue-on-error: true
