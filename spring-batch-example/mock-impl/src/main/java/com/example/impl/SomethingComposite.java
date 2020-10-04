@@ -5,8 +5,8 @@ import com.example.api.SomethingStatus;
 import com.example.api.SomethingStatusService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -15,16 +15,14 @@ class SomethingComposite implements SomethingAPI, SomethingStatusService {
 
   private final SomethingStatusEntityRepository repository;
 
-  @Modifying
-  @Transactional
+  @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void function1(long id) {
     var entity = repository.findById(id).orElseThrow();
     entity.setStatus1(LocalDateTime.now().toString());
   }
 
-  @Modifying
-  @Transactional
+  @Transactional(propagation = Propagation.MANDATORY)
   @Override
   public void function2(long id) {
     var entity = repository.findById(id).orElseThrow();
