@@ -1,0 +1,35 @@
+spring:
+  data:
+    mongodb:
+      host: localhost
+      database: test
+      username: test
+      password: test
+      port: 27016
+      field-naming-strategy: org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy
+  jpa:
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: false
+    hibernate:
+      ddl-auto: none
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: test
+    password: test
+    url: jdbc:mysql://localhost:3305/test
+    initialization-mode: always
+    schema:
+      - org/springframework/batch/core/schema-mysql.sql
+    continue-on-error: true
+  batch:
+    job:
+      enabled: false
+  task:
+    scheduling:
+      shutdown:
+        await-termination: true
+      pool:
+        size: 2
