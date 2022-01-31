@@ -1,1 +1,1 @@
-# blog-sample
+# sample
